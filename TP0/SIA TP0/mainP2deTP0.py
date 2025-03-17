@@ -25,7 +25,8 @@ with open(pokemon_file,"r") as f:
 
 pokemon = ["jolteon", "caterpie", "snorlax", "onix", "mewtwo"]
 pokebolas = ["pokeball", "ultraball", "fastball", "heavyball"]
-estado_pokemon = ["NONE", "SLEEP", "FREEZE", "POISON", "BURN", "PARALYSIS"]
+NIVEL = 10
+HP =0.1
 # Generacion
 
 gen_pokemon = PokemonFactory(pokemon_file)
@@ -34,48 +35,45 @@ gen_pokemon = PokemonFactory(pokemon_file)
 
 # La idea es generar una función que utilice attemp catch pero para varios pokemones
 
-def atrapar(pokemon,pokebola,estado_pokemon,intentos):
+def atrapar(pokemon,pokebola,intentos,NIVEL,HP,estado):
     resultados = []
     resultados_promediados = []
-    NIVEL = 100
-    HP = 1
     
-    for estado in estado_pokemon:
-        for bolas in pokebolas:
-            exitos = 0
-            probabilidad_exito = []
+    for bolas in pokebolas:
+        exitos = 0
+        probabilidad_exito = []
+        
+        for _ in range(intentos):
+            pokes = gen_pokemon.create(pokemon, NIVEL, StatusEffect[estado], HP)
+            exitos_tasa, capture = attempt_catch(pokes, bolas)
             
-            for _ in range(intentos):
-                pokes = gen_pokemon.create(pokemon, NIVEL, StatusEffect[estado], HP)
-                exitos_tasa, capture = attempt_catch(pokes, bolas)
-
-                if exitos_tasa:
-                    exitos += 1
-                probabilidad_exito.append(capture)   
-                
-            resultados.append([pokemon,bolas,estado,exitos/intentos,np.mean(probabilidad_exito)])    
+            if exitos_tasa:
+                exitos += 1
+            probabilidad_exito.append(capture)   
+            
+        resultados.append([pokemon,bolas,exitos/intentos,np.mean(probabilidad_exito)])   
    
     return resultados
-        
+
 INTENTOS = 100;
+
 resultados = []
 for pkmn in pokemon:
-    resultados.extend((atrapar(pkmn, pokebolas,estado_pokemon,INTENTOS)))
-
-df_results = pd.DataFrame(resultados, columns=["Pokemon","estado", "Pokebola", "Tasa exito", "Media de captura"])
-
+    resultados.extend((atrapar(pkmn, pokebolas,INTENTOS,NIVEL,HP,"SLEEP")))
+    
+pokemon_seleccionado = "caterpie"
+df_results = pd.DataFrame(resultados, columns=["Pokemon", "Pokebola", "Tasa exito", "Media de captura"])
 print(df_results)
 
-pokemon_seleccionado = "snorlax"
-df_filtrado = df_results[df_results["Pokemon"] == pokemon_seleccionado] # Selecciono solo los datos del pokemon que quiero 
-sns.barplot(data=df_filtrado, x="estado", y="Tasa exito", hue="Pokebola")
-
-
-
+plt.figure(figsize=(10, 6))
+sns.barplot(data=df_results, x="Pokemon", y="Tasa exito", hue="Pokebola")
 plt.xlabel("Estado del Pokémon")
 plt.ylabel("Tasa de Éxito")
 plt.title(f"Tasa de Captura según Estado y Pokébola ({pokemon_seleccionado})")
 plt.legend(title="Pokébola")
 plt.show()
+
+
+
 
 

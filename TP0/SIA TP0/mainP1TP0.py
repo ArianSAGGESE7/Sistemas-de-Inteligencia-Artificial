@@ -72,14 +72,13 @@ df_results = pd.DataFrame(resultados, columns=["Pokemon", "Pokebola", "Tasa exit
 
 print(df_results)
 
-df_results = df_results[df_results["Pokemon"] == "caterpie"] # Selecciono solo los datos del pokemon que quiero 
+# df_results = df_results[df_results["Pokemon"] == "caterpie"] # Selecciono solo los datos del pokemon que quiero 
 df_sea = df_results.pivot(index = "Pokemon", columns = "Pokebola", values = "Tasa exito") # reordeno
-sns.barplot(df_sea)
-
-
+sns.barplot(data=df_results, x="Pokebola", y="Tasa exito", hue="Pokemon")
+#sns.barplot(df_results)
 
  # Etiquetas y título
-plt.xlabel("Caterpie")
+plt.xlabel("Pokemon")
 plt.ylabel("Tasa de Captura (%) = exitos/tiradas")
 plt.title("Probabilidad de Captura por Pokébola")
 plt.xticks(rotation=45)

@@ -25,7 +25,7 @@ with open(pokemon_file,"r") as f:
 
 pokemon = ["jolteon", "caterpie", "snorlax", "onix", "mewtwo"]
 pokebolas = ["pokeball", "ultraball", "fastball", "heavyball"]
-HP = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+NIVEL = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 # Generacion
 
 gen_pokemon = PokemonFactory(pokemon_file)
@@ -34,47 +34,41 @@ gen_pokemon = PokemonFactory(pokemon_file)
 
 # La idea es generar una función que utilice attemp catch pero para varios pokemones
 
-def atrapar(pokemon,pokebola,intentos,HP):
+def atrapar(pokemon,pokebola,intentos,NIVEL):
     resultados = []
     resultados_promediados = []
-    NIVEL = 100
+    HP = 1
     
-    
-    for HPP in HP:
+    for NV in NIVEL:
         for bolas in pokebolas:
             exitos = 0
             probabilidad_exito = []
             
             for _ in range(intentos):
-                pokes = gen_pokemon.create(pokemon, NIVEL, StatusEffect.NONE, HPP/100)
+                pokes = gen_pokemon.create(pokemon, NV, StatusEffect.NONE, HP)
                 exitos_tasa, capture = attempt_catch(pokes, bolas)
 
                 if exitos_tasa:
                     exitos += 1
                 probabilidad_exito.append(capture)   
                 
-            resultados.append([pokemon,HPP,bolas,exitos/intentos,np.mean(probabilidad_exito)])    
+            resultados.append([pokemon,NV,bolas,exitos/intentos,np.mean(probabilidad_exito)])    
    
     return resultados
-        
-INTENTOS = 100;
-pokemon_comparacion = ["caterpie","snorlax",'jolteon']
-resultados = []
-for pkmn in pokemon_comparacion:
-    resultados.extend((atrapar(pkmn, pokebolas,INTENTOS,HP)))
-    
-df_results = pd.DataFrame(resultados, columns=["Pokemon","HP", "Pokebola", "Tasa exito", "Media de captura"])
 
+INTENTOS = 100;
+
+resultados = []
+for pkmn in pokemon:
+    resultados.extend((atrapar(pkmn, pokebolas,INTENTOS,NIVEL)))
+    
+df_results = pd.DataFrame(resultados, columns=["Pokemon","NIVEL", "Pokebola", "Tasa exito", "Media de captura"])
+# df_results =  df_results[df_results["Pokebola"] == "pokeball"]
 print(df_results)
 
-pokemon_seleccionado = "jolteon"
-df_filtrado = df_results[df_results["Pokemon"] == pokemon_seleccionado] # Selecciono solo los datos del pokemon que quiero 
-sns.barplot(data=df_filtrado, x="HP", y="Tasa exito", hue="Pokebola")
-
-
-
-plt.xlabel("HP")
-plt.ylabel("Tasa de Éxito")
-plt.title(f"Tasa de Captura según Estado y Pokébola ({pokemon_seleccionado})")
-plt.legend(title="Pokébola")
+plt.figure(figsize=(10, 6))
+sns.lineplot(data=df_results, x="NIVEL", y="Tasa exito", hue="Pokemon", marker="o",ci="sd")
 plt.show()
+
+
+
