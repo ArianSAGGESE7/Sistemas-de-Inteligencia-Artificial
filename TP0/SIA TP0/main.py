@@ -1,74 +1,36 @@
 import json
-import sys
 import matplotlib.pyplot as plt
-
 from src.catching import attempt_catch
 from src.pokemon import PokemonFactory, StatusEffect
 
-config_file = "configs/caterpie.json"  # Archivo fijo
+N = 100
+balls = ["pokeball", "ultraball", "fastball", "heavyball"]
+pokemon_configs = ["TP0\SIA TP0\configs\caterpie.json", "TP0\SIA TP0\configs\snorlax.json"]
 
-with open(config_file, "r") as f:
-    config = json.load(f)
+if __name__ == "__main__":
+    factory = PokemonFactory("TP0\SIA TP0\pokemon.json")
+    
+    for config_file in pokemon_configs:
+        with open(config_file, "r") as f:
+            config = json.load(f)
+            pokemon = factory.create(config["pokemon"], 100, StatusEffect.NONE, 1)
+            
+            results = {ball: 0 for ball in balls}
+            for ball in balls:
+                success_count = 0
+                for i in range(N):
+                    caught, _ = attempt_catch(pokemon, ball)
+                    if caught:
+                        success_count += 1
+                results[ball] = success_count / N
 
-factory = PokemonFactory("pokemon.json")
-ball = config["pokeball"]
-pokemon = factory.create(config["pokemon"], 100, StatusEffect.NONE, 1)
+        print(f"Results for {config['pokemon']}:")
+        for ball, probability in results.items():
+            print(f"Probability of catching with {ball}: {probability * 100:.2f}%")
 
-# for i in range(100, 1, -1):
-#     pokemon = factory.create(config["pokemon"], 100, StatusEffect.NONE, i / 100)
-#     print(pokemon.current_hp)
-
-#print("No noise: ", attempt_catch(pokemon, ball))
-#for i in range(10):
-#    print("Noisy: ", attempt_catch(pokemon, ball, 0.15*i))
-
-
-print("Pruebas")
-resultados = []
-probabilidades = []
-booleans = []
-bolas = ["pokeball","ultraball","fastball","heavyball"]
-# for ball in bolas:   
-#         print("Tipo de bola:    ",ball)
-#         print("Ruido: off")
-#         bolean,prob=attempt_catch(pokemon, ball)
-        
-#         resultados.append((ball,bolean,prob))
-#         print("iteracion",resultados)
-        
-        
-for ball in bolas:
-    for i in range(100):
-        bolean,prob=attempt_catch(pokemon, ball)
-        resultados.append((ball,bolean,prob))
-        probabilidades.append(prob)
-        booleans.append(bolean)
-        
-#  Calculo promedio de probabilidad 
-Prob_captura_media = 0
-
-for proba in probabilidades[0:99]:
-    Prob_captura_media += proba     
-        
-Prob_captura_media = Prob_captura_media/100;
-
-contador_true = 0
-contador_false = 0
-
-for atrapado in booleans[0:99]:
-    if atrapado:
-        contador_true += 1
-    else:
-        contador_false += 1
-
-
-print(Prob_captura_media)
-
-# Gráfico de línea
-plt.figure(figsize=(10, 5))
-plt.show()
-plt.plot(range(1, len(probabilidades[0:99]) + 1), probabilidades[0:99], marker="o", linestyle="-", color="b", label="Probabilidad por intento")
-
-plt.figure(figsize=(10, 5))
-plt.show()
-plt.hist(probabilidades[0:99], bins=10, color="c", edgecolor="black", alpha=0.7)
+        # Crear gráfico de barras
+        plt.bar(results.keys(), [prob * 100 for prob in results.values()])
+        plt.xlabel('Pokebola')
+        plt.ylabel('Probabilidad de captura (%)')
+        plt.title(f'Probabilidad de captura promedio para cada pokebola ({config["pokemon"]})')
+        plt.show()
