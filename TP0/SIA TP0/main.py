@@ -1,5 +1,6 @@
 import json
 import matplotlib.pyplot as plt
+import pandas as pd
 from src.catching import attempt_catch
 from src.pokemon import PokemonFactory, StatusEffect
 
@@ -17,6 +18,7 @@ if __name__ == "__main__":
             config = json.load(f)
             best_combination = None
             highest_probability = 0
+            data = []
 
             for status in status_effects:
                 for level in levels_of_life:
@@ -34,6 +36,7 @@ if __name__ == "__main__":
                     print(f"Results for {config['pokemon']} with status {status.name} and life level {level}:")
                     for ball, probability in results.items():
                         print(f"Probability of catching with {ball}: {probability * 100:.2f}%")
+                        data.append([config["pokemon"], status.name, level, ball, probability * 100])
 
                     # Encontrar la mejor combinación
                     max_ball = max(results, key=results.get)
@@ -52,3 +55,7 @@ if __name__ == "__main__":
             if best_combination:
                 print(f"La mejor combinación para {best_combination[0]} es:")
                 print(f"Estado: {best_combination[1]}, Nivel de vida: {best_combination[2]}, Pokebola: {best_combination[3]}, Probabilidad: {best_combination[4] * 100:.2f}%")
+
+            # Crear y mostrar la tabla de resultados
+            df = pd.DataFrame(data, columns=["Pokemon", "Estado", "Nivel de vida", "Pokebola", "Probabilidad (%)"])
+            print(df)
