@@ -46,11 +46,11 @@ if __name__ == "__main__":
                         best_combination = (config["pokemon"], status.name, level, max_ball, max_probability)
 
                     # Crear gráfico de barras
-                    plt.bar(results.keys(), [prob * 100 for prob in results.values()])
-                    plt.xlabel('Pokebola')
-                    plt.ylabel('Probabilidad de captura (%)')
-                    plt.title(f'Probabilidad de captura promedio para cada pokebola ({config["pokemon"]} - {status.name} - Vida {level})')
-                    plt.show()
+                    # plt.bar(results.keys(), [prob * 100 for prob in results.values()])
+                    # plt.xlabel('Pokebola')
+                    # plt.ylabel('Probabilidad de captura (%)')
+                    # plt.title(f'Probabilidad de captura promedio para cada pokebola ({config["pokemon"]} - {status.name} - Vida {level})')
+                    # plt.show()
 
             if best_combination:
                 print(f"La mejor combinación para {best_combination[0]} es:")
